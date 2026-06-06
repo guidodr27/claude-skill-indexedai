@@ -1,0 +1,28 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SKILL.md exists and is non-empty
+        run: test -s SKILL.md
+
+      - name: Has Trigger section
+        run: grep -q "## Trigger" SKILL.md
+
+      - name: Has Fallback section
+        run: grep -q "Fallback" SKILL.md
+
+      - name: Has output format section
+        run: grep -q "\[MCP:" SKILL.md
+
+      - name: No Windows line endings
+        run: "! grep -rPl $'\\r' SKILL.md"
