@@ -1,16 +1,28 @@
 # indexedai — Claude Code Skill
 
-> Query websites through their own MCP servers instead of plain WebFetch — getting structured, semantic data straight from the source.
+> Query any website via MCP — structured data, zero context overhead.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-blueviolet)](https://claude.ai/code)
+[![IndexedAI](https://img.shields.io/badge/Powered%20by-IndexedAI-orange)](https://drivecode.it)
+
+---
+
+## The problem with normal MCP servers
+
+When you add an MCP server to Claude, it loads **every tool definition at startup** — filling your context window before you've typed a single message.
+
+`/indexedai` works differently. It loads MCP **on demand**, only when you invoke it. No idle overhead, no wasted tokens.
 
 ---
 
 ## What it does
 
-Many websites expose an [MCP](https://modelcontextprotocol.io) server at `/.well-known/mcp.json`.
-`/indexedai` discovers and uses that server automatically — so instead of scraping HTML, Claude calls the site's own API and gets back clean, structured answers.
+`/indexedai` queries any website through [MCP (Model Context Protocol)](https://modelcontextprotocol.io) and returns clean, structured data — not raw HTML.
+
+It works with sites that expose a `/.well-known/mcp.json` discovery endpoint, including sites indexed by **[IndexedAI.tech](https://drivecode.it)** — a service that generates hosted MCP endpoints and `llms.txt` files for any website.
+
+If no MCP server is found, it falls back to plain WebFetch automatically.
 
 ```
 User: /indexedai docs.stripe.com how does webhook retry work?
@@ -21,7 +33,18 @@ Claude: Checking for MCP server at docs.stripe.com…
         with exponential backoff starting at 1 hour...
 ```
 
-Falls back to plain WebFetch when no MCP server is found.
+---
+
+## Key benefits
+
+| Benefit | Detail |
+|---------|--------|
+| **Zero context overhead** | MCP loads only when invoked — never at startup |
+| **Structured data** | Semantic content via MCP, not raw HTML scraping |
+| **Always returns an answer** | Graceful WebFetch fallback when MCP is unavailable |
+| **Parallel queries** | Multiple domains discovered and queried concurrently |
+
+---
 
 ## How it works
 
@@ -31,14 +54,16 @@ Falls back to plain WebFetch when no MCP server is found.
        ▼
 GET /.well-known/mcp.json
        │
-   ┌───┴────────────────┐
-   │ MCP found          │ No MCP / error
-   ▼                    ▼
-Initialize           WebFetch fallback
-List tools           [Web: domain.com]
-Call best tool
+   ┌───┴────────────────────┐
+   │ MCP endpoint found     │ No MCP / error
+   ▼                        ▼
+Initialize (JSON-RPC)    WebFetch fallback
+List tools               [Web: domain.com]
+Call best-matching tool
 [MCP: domain.com]
 ```
+
+Discovery happens via [`.well-known/mcp.json`](https://modelcontextprotocol.io) — the MCP standard for advertising server endpoints. If a site doesn't have one natively, [IndexedAI.tech](https://drivecode.it) can generate one.
 
 ---
 
@@ -68,7 +93,7 @@ mkdir -p ~/.claude/skills/indexedai && \
 # Domain shorthand
 /indexedai openai.com rate limits
 
-# Multiple sites (queried in parallel)
+# Multiple sites queried in parallel
 /indexedai stripe.com and docs.github.com webhook events
 ```
 
@@ -78,8 +103,19 @@ mkdir -p ~/.claude/skills/indexedai && \
 
 | Prefix | Meaning |
 |--------|---------|
-| `[MCP: domain.com]` | Data from the site's own MCP server |
+| `[MCP: domain.com]` | Structured data via MCP endpoint |
 | `[Web: domain.com]` | Fallback — plain WebFetch |
+
+---
+
+## Want MCP for your site?
+
+[IndexedAI.tech](https://drivecode.it) analyzes any website and generates:
+- A hosted **MCP server endpoint** (queryable via this skill)
+- A custom **`llms.txt`** file for AI agent readability
+- An **Agent Readiness Score** across 5 dimensions
+
+Free beta — no account required.
 
 ---
 

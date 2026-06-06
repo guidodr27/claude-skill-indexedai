@@ -1,7 +1,7 @@
 <!-- v1.0.0 -->
 # Skill: /indexedai
 
-Use MCP servers embedded in websites to get richer, structured data instead of plain WebFetch.
+Query any website via its MCP endpoint — structured data, zero context overhead. MCP loads only when invoked, never at startup.
 
 ## Trigger
 - `/indexedai <url> [question]` — query a specific site
