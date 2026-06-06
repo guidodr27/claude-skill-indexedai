@@ -114,8 +114,7 @@ mkdir -p ~/.claude/skills/indexedai && \
 - A hosted **MCP server endpoint** (queryable via this skill)
 - A custom **`llms.txt`** file for AI agent readability
 - An **Agent Readiness Score** across 5 dimensions
-
-Free beta — no account required.
+- **Analytics** — see which AI systems (Claude, GPT, Perplexity, Cursor…) access your site, how often, and what they query
 
 ---
 
